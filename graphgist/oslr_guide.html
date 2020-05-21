@@ -35,47 +35,44 @@
       <div>
 
 <div class="paragraph">
-<p>ABOUT  us: <a href="http://www.onekin.org/">Onekin</a></p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://onekin.org/portal/sites/default/files/danland_logo.png" alt="danland logo" width="200">
-</div>
+<h4>ABOUT  us: </h4><p><a target="_blank" href="http://www.onekin.org/">
+<img src="https://onekin.org/wp-content/uploads/2019/11/danland_logo-1.png" alt="danland logo" width="200"><br/>
+ Onekin </a>is a research group mainly focused on the study of Portal/Portlet engineering issues. Our group is localized at the University of the Basque Country</p>
 </div>
 <div class="paragraph">
-<p>ABOUT this guided tour:
-This is a GraphGist created to check an Open SLR auditability. It is available <a href="https://portal.graphgist.org/graph_gists/open-systematic-literature-review/graph_guide">here</a>.</p>
-</div>
-<div class="paragraph">
-<p>In addition, it can be "played" as a guided tour into Neo4j. Copy and paste the following command in your Neo4j Browser:</p>
+<h4>ABOUT this guided tour:</h4>
+<p>This is a GraphGist created to show the Open SLR auditability concept. It is available <a target="_blank" href="https://github.com/onekin/OpenSLR/blob/master/graphgist/oslr_guide.html">in Github</a>.
+In addition, it can be "played" as a guided tour into Neo4j. Copy and paste the following command in your Neo4j Browser:</p>
 </div>
 
 <div id="" class="listingblock">
   <div class="content">
-      <pre class="">:play https://portal.graphgist.org/graph_gists/open-systematic-literature-review/graph_guide</pre>
+      <pre class="">:play https://raw.githubusercontent.com/onekin/OpenSLR/master/graphgist/oslr_guide.html</pre>
   </div>
 </div>
 <div class="paragraph">
-<p>Problems?  For security reasons, Neo4j’s standard config is setup to accept files hosted on guides.neo4j.com and localhost. To allow this guide from <a href="https://portal.graphgist.org/" class="bare">https://portal.graphgist.org/</a>, you will need to whitelist it in your $NEO4J_HOME/conf/neo4j.conf along with the default whitelists, as shown below.</p>
+<p>Problems? For security reasons, Neo4j’s standard config is set up to accept files hosted on guides.neo4j.com and localhost. To allow this guide from <a target="_blank" href="https://raw.githubusercontent.com" class="bare">https://raw.githubusercontent.com</a>, you will need to whitelist it in your $NEO4J_HOME/conf/neo4j.conf along with the default whitelists, as shown below.</p>
 </div>
 
 
 <div id="" class="listingblock">
   <div class="content">
-      <pre class="">browser.remote_content_hostname_whitelist=https://portal.graphgist.org/, https://guides.neo4j.com/, localhost</pre>
+      <pre class="">browser.remote_content_hostname_whitelist=https://raw.githubusercontent.com, https://portal.graphgist.org/, https://guides.neo4j.com/, localhost</pre>
   </div>
 </div>
 
 <div class="paragraph">
-<p>ABOUT Open SLRs</p>
+<h4>ABOUT Open SLRs</h4>
+<p>The main aim of OpenSLRs is to ensure auditability of Data Extraction processes in Systematic Literature Reviews performance. For that purpose OpenSLRs:
+  <ul>
+    <li> Follow the <strong>W3C Annotations Model</strong></li>
+  <li> Analyze data extraction process auditability by means of <strong>goals, metrics and queries</strong>.</li>
+</ul>
+
+</p>
 </div>
 <div class="paragraph">
-<p>The main aim of OpenSLRS is to ensure auditability of the Data Extraction process in Systematic Literature Reviews performance. For that purpose OpenSLRs:
-. Follow the <strong>W3C Annotations Model</strong>
-. Analyze data extraction process auditability by means of <strong>goals, metrics and queries</strong>.</p>
-</div>
-<div class="paragraph">
-<p>This guide explains and shows all these concepts through <strong>an example Open SLR</strong>.</p>
+<p>This guide explains and shows all these concepts through <strong>an example</strong>.</p>
 </div></div>
     </div>
   </slide>
@@ -83,30 +80,25 @@ This is a GraphGist created to check an Open SLR auditability. It is available <
   <slide class="row-fluid">
     <div class="col-sm-12">
       <h3>W3C Annotations Model</h3>
-      <br/>
-      <div><div class="paragraph">
-<p>We opt to align our efforts with the <a href="https://www.w3.org/annotation/">W3C Web Annotation</a> recomendation in order to standardize SLR annotations.</p>
+      <div class="paragraph">
+<p>We opt to align our efforts with the <a target="_blank" href="https://www.w3.org/annotation/">W3C Web Annotation</a> recomendation in order to standardize SLR annotations.</p>
 </div>
 <div class="paragraph">
-<p><strong>Aims of the Model</strong></p>
-</div>
-<div class="paragraph">
+<h4>Aims of the Model</h4>
 <p>The primary aim of the Web Annotation Data Model is to provide a standard description model and format to enable annotations to be shared between systems. Annotating is defined as the act of creating associations between distinct pieces of information.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="https://www.w3.org/TR/annotation-model/images/intro_model.png" alt="intro model" width="200">
+<img src="https://www.w3.org/TR/annotation-model/images/intro_model.png" alt="intro model" width="400" />
 </div>
 </div>
 <div class="paragraph">
-<p>The <a href="https://www.w3.org/TR/annotation-model/">Web Annotation Data Model</a> provides an extensible, interoperable framework for expressing annotations such that they can easily be shared between platforms, with sufficient richness of expression to satisfy complex requirements while remaining simple enough to also allow for the most common use cases.</p>
+<p>The <a target="_blank" href="https://www.w3.org/TR/annotation-model/">Web Annotation Data Model</a> provides an extensible, interoperable framework for expressing annotations such that they can easily be shared between platforms, with sufficient richness of expression to satisfy complex requirements while remaining simple enough to also allow for the most common use cases.</p>
 </div>
 <div class="paragraph">
-<p>The specification provides a specific <a href="https://www.w3.org/TR/annotation-vocab/">JSON format</a> for ease of creation and consumption of annotations based on the conceptual model that accommodates these use cases, and the vocabulary of terms that represents it.</p>
+<p>The specification provides a specific <a target="_blank" href="https://www.w3.org/TR/annotation-vocab/">JSON format</a> for ease of creation and consumption of annotations based on the conceptual model that accommodates these use cases, and the vocabulary of terms that represents it.
+<img src="https://www.w3.org/TR/annotation-vocab/images/examples/annotation.png" alt="anno model" width="600" /></p>
 </div>
-<div class="paragraph">
-<p>image::https://www.w3.org/TR/annotation-vocab/images/examples/annotation.png</p>
-</div></div>
     </div>
   </slide>
 
@@ -116,17 +108,17 @@ This is a GraphGist created to check an Open SLR auditability. It is available <
     <div class="col-sm-12">
       <h3>Goals, metrics and queries for auditability</h3>
       <br/>
-      <div><div class="paragraph">
-<p>The main aim of OpenSLRS is to ensure auditability of data extraction process in Systematic Literature Reviews. We follow the <a href="https://www.leadingagile.com/2013/07/gqm-how-do-you-know-your-metrics-are-any-good/">Goal-Question-Metric</a> (GQM) paradigm</p>
+      <div class="paragraph">
+<p>The main aim of OpenSLRs is to ensure auditability of data extraction processes in Systematic Literature Reviews. We follow the <a  target="_blank" href="https://www.leadingagile.com/2013/07/gqm-how-do-you-know-your-metrics-are-any-good/">Goal-Question-Metric</a> (GQM) paradigm</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="https://www.leadingagile.com/wp-content/uploads/2014/05/gqm-diagram.png" alt="gqm diagram" width="400">
+<img src="https://www.leadingagile.com/wp-content/uploads/2014/05/gqm-diagram.png" alt="gqm diagram" width="600">
 </div>
 </div>
 <div class="paragraph">
-<p>This Neo4J guide explains OpenSLR metrics and shows the cypher statements to obtain the metrics messurements from an example SLR.</p>
-</div></div>
+<p>This Neo4J guide explains OpenSLR metrics and shows the cypher statements to obtain the metrics measurements from an example SLR.</p>
+</div>
     </div>
   </slide>
 
@@ -136,22 +128,15 @@ This is a GraphGist created to check an Open SLR auditability. It is available <
 
   <slide class="row-fluid">
     <div class="col-sm-12">
-      <h3>The example: this Systematic Literature Review</h3>
+      <h3>The example: an Open Systematic Literature Review</h3>
       <br/>
       <div><div class="paragraph">
 <p>This OpenSLR is based on a secondary study about primary studies on the computer science tools for the conservation of the <strong>Crucifix Toad found in southeastern Australia</strong>.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>EXPORT/IMPORT RAW DATA*</p>
-</li>
-</ul>
-</div>
+<h4>EXPORT/IMPORT RAW DATA</h4>
 <div class="paragraph">
-<p>Original data was exported to a cypher script through the following <a href="https://neo4j.com/developer/kb/export-sub-graph-to-cypher-and-import/">Neo4j APOC Library</a>'s command:</p>
+<p>Original data was exported to a cypher script through the following <a target="_blank" href="https://neo4j.com/developer/kb/export-sub-graph-to-cypher-and-import/">Neo4j APOC Library</a>'s command:</p>
 </div>
-
 
 <div id="" class="listingblock">
   <div class="content">
