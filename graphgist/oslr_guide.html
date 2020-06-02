@@ -251,8 +251,10 @@ MATCH (n:`UNIQUE IMPORT LABEL`)  WITH n LIMIT 20000 REMOVE n:`UNIQUE IMPORT LABE
       <p>This query colects statistics about the Data Base. Concretely:
         <ul>
   <li>numberOfPapers</li>
-  <li>	numberOfExtractors</li>
   <li>	NumberOfAnnotations</li>
+  <li>	numberOfExtractors</li>
+  <li>	NumberOfValidations</li>
+  <li>	NumberOfCheckers</li>
   <li>	NumberOfDBNodes</li>
   <li>	NumberOfDBRelations</li>
 </ul>
@@ -263,14 +265,10 @@ MATCH (n:`UNIQUE IMPORT LABEL`)  WITH n LIMIT 20000 REMOVE n:`UNIQUE IMPORT LABE
   <div class="content">
 
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH (n)
-WITH count(DISTINCT n) as NumberOfDBNodes
-MATCH ()-[p]-()
-WITH count(DISTINCT p) as NumberOfDBRelations, NumberOfDBNodes
-MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})&lt;-[:oa__motivatedBy]-(ano:oa__Annotation)-[:oa__hasTarget]-&gt;()-[:oa__hasSource]-&gt;(primaryStudy)
-MATCH (ano)-[:dcterms__creator]-&gt;(extractor)
-WITH count(DISTINCT ano) as NumberOfAnnotations, COUNT(DISTINCT primaryStudy) as numberOfPapers, NumberOfDBNodes, NumberOfDBRelations, COUNT(DISTINCT extractor) as numberOfExtractors
-RETURN numberOfPapers, numberOfExtractors, NumberOfAnnotations, NumberOfDBNodes, NumberOfDBRelations</code>
+        <code class="cypher language-cypher">MATCH (n), (primaryStudy:foaf__Document), ()-[p]-()
+MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})<-[:oa__motivatedBy]-(ano:oa__Annotation)-[:dcterms__creator]->(extractor)
+MATCH ({uri:'http://www.w3.org/ns/oa#assessing'})<-[:oa__motivatedBy]-(checks:oa__Annotation)-[:dcterms__creator]->(checker)
+RETURN COUNT(DISTINCT primaryStudy) as numberOfPapers, count(DISTINCT ano) as NumberOfAnnotations,  COUNT(DISTINCT extractor) as numberOfExtractors, count(DISTINCT checks) as NumberOfValidations,  COUNT(DISTINCT checker) as numberOfCheckers, count(DISTINCT n) as NumberOfDBNodes,  count(DISTINCT p) as NumberOfDBRelations</code>
       </pre>
 
   </div>
@@ -296,7 +294,7 @@ RETURN numberOfPapers, numberOfExtractors, NumberOfAnnotations, NumberOfDBNodes,
   </br>
     Let <strong>\( A= (P, R, D, K, E, B, C, V) \)</strong> be a SLR data set, where:
     <ul>
-  <li> \(P\)  is a set of papers, </li>
+  <li> \(P\) is a set of papers, </li>
   <li>\(R\) is a set of reviewers (a.k.a. extractors), </li>
   <li>\(D\) is a set of (internal or external) data checkers, </li>
   <li>\(K\) is a set of categories, </li>
@@ -341,7 +339,7 @@ RETURN numberOfPapers, numberOfExtractors, NumberOfAnnotations, NumberOfDBNodes,
          \lt 4, paper1, Bob,  Cypher, “graph data”\gt , \)</br> \(
          \lt 6, paper2, Alice, C, “C++”\gt , \)</br> \(
          \lt 7, paper2, Alice, MissingQL, “ ”\gt , \)</br> \(
-         \lt 8, paper2, Bob,, “C++”\gt , \)</br> \(
+         \lt 8, paper2, Bob, “C++”\gt , \)</br> \(
          \lt 9, paper2, Bob, SQL, “ relational database”\gt , \} \)</br> \(
          \lt 10, paper2, Bob, ApplicationDomain, “education”\gt \}, \) </li>
   <li>\(V=\{\lt Carol, 2, agree, “all ok”\gt,  \)</br> \(\lt Carol, 4, disagree, “weak evidence”\gt\}.\) </li>
@@ -355,102 +353,100 @@ RETURN numberOfPapers, numberOfExtractors, NumberOfAnnotations, NumberOfDBNodes,
 
   Next slides describe cypher queries' goals in terms of the set theory following these definitions and notations.
 
+Concretely the dataset will be this: (it is shown in JSON notation):
+
+  {"P": ["paper1", "paper2", "paper3", "paper4","paper5", "paper6"],
+  "R":["Alice", "Bob", "Carol"],
+  "D": ["David"],
+  "K":["ProgrammingLanguage", "QueryLanguage", "ApplicationDomain"],
+  "E":["Java", "C", "MissingPL", "SQL", "Sparql", "cypher", "MissingQL", "OpenendedAD", "MissingAD"],
+  "B":[{"category" : "ProgrammingLanguage", "code": "Java"} , {"category" : "ProgrammingLanguage", "code": "C"}, {"category" : "ProgrammingLanguage", "code": "MissingPL"}, {"category" : "QueryLanguage", "code": "SQL"}, {"category" : "QueryLanguage", "code": "Cypher"}, {"category" : "QueryLanguage", "code": "Sparql"}, {"category" : "QueryLanguage", "code": "MissingQL"}, {"category" : "ApplicationDomain", "code" :"OpenendedAD"}, {"category" : "ApplicationDomain", "code" : "MissingAD"}],
+  "C":[
+  {"codingId": "anno1", "paper": "paper1", "reviewer": "Alice", "code": "Java", "quote": "developed in Java"},
+  {"codingId": "anno2", "paper": "paper1", "reviewer": "Bob", "code": "Java", "quote": "developed in Java"},
+  {"codingId": "anno3", "paper": "paper2", "reviewer": "Alice", "code": "Java", "quote": "developed"},
+  {"codingId": "anno4", "paper": "paper2", "reviewer": "Carol", "code": "C", "quote": "C development"},
+  {"codingId": "anno5", "paper": "paper3", "reviewer": "Bob", "code": "C", "quote": "developed in C"},
+  {"codingId": "anno6", "paper": "paper3", "reviewer": "Carol", "code": "C", "quote": "developed in C"},
+  {"codingId": "anno7", "paper": "paper4", "reviewer": "Carol", "code": "Java", "quote": "developed in Java"},
+  {"codingId": "anno8", "paper": "paper5", "reviewer": "Carol", "code": "Java", "quote": "developed in Java"},
+  {"codingId": "anno9", "paper": "paper1", "reviewer": "Alice", "code": "SQL", "quote": "ERDB"},
+  {"codingId": "anno10", "paper": "paper2", "reviewer": "Alice", "code": "SQL", "quote": "ERDB"}
+  ],
+  "V":[
+  {"checker": "David", "codingId": "anno1", "assessment" : "agree", "comment" : "all ok"},
+  {"checker": "David", "codingId": "anno2", "assessment" : "agree", "comment" : "all ok"},
+  {"checker": "David", "codingId": "anno3", "assessment" : "disagree", "comment" : "It is C"},
+  {"checker": "David", "codingId": "anno10", "assessment" : "agree", "comment" : "all ok"}
+  ]}
+
+
+
+
         </slide>
 
 
 
   <slide class="row-fluid">
     <div class="col-sm-12">
-      <h3>ANALYSIS: #Extractor (M1):</h3>
+      <h3>ANALYSIS: #Extractors (M1):</h3>
       <br/>
-
 <strong>TEXTUAL DESCRIPTION:</strong>
-Count the distinct paper reviewers (i.e. data extractors). That is, count distinct extractors coding primary studies.
+Count the distinct paper reviewers (i.e. data extractors) in the OSLR. That is, count distinct extractors coding primary studies.
 <br/>
 <strong>FORMAL DESCRIPTION: </strong>
-We want the \(numberOfExtractors = |Extractors| \) where \(Extractors =\{ e \in R | \exists Anno \in C: Anno.reviewer =e\} \)
-
-
-
+\(numberOfExtractors = |Extractors| \) where \(Extractors =\{ e \in R | \exists Anno \in C: Anno.reviewer =e\} \)
 <div id="" class="listingblock">
   <div class="content">
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH (ANNO:oa__Annotation)-[:oa__motivatedBy]-&gt;(p {uri:'http://www.w3.org/ns/oa#classifying'}) ,
-             (ANNO:oa__Annotation)-[:dcterms__creator]-&gt;(EXTRACTOR)
-RETURN COUNT(DISTINCT EXTRACTOR) AS numberOfExtractors</code>
+        <code class="cypher language-cypher">
+          MATCH ({uri:'http://www.w3.org/ns/oa#classifying'}) <-[:oa__motivatedBy]-(ANNO:oa__Annotation)-[:dcterms__creator]->(extractor)
+RETURN COUNT(DISTINCT extractor ) AS numberOfExtractors
+        </code>
       </pre>
-
   </div>
 </div></div>
-    </div>
   </slide>
-
-
-
 
 
   <slide class="row-fluid">
     <div class="col-sm-12">
-      <h3>ANALYSIS: #AdditionalReviewer (M6):</h3>
+      <h3>ANALYSIS: #AdditionalReviewer (M4):</h3>
       <br/>
-      <div><div class="paragraph">
-<p>QUERY: Count distinct extractors per primary study.</p>
-</div>
-
-
-
-
+      <strong>TEXTUAL DESCRIPTION:</strong>
+      List the number of distinct extractors coding each paper.
+      <br/>
+      <strong>FORMAL DESCRIPTION: </strong>
+        We want the \(\lt paper_i , numberOfExtractors_i \gt \) where \(paper_i \in P \),  \(numberOfExtractors_i = |Extractors_i| \) and \(Extractors_i =\{ e \in R | \exists Anno \in C: Anno.reviewer =e \land Anno.paper = paper_i \} \)
+  <br/>
+  <strong>CYPHER QUERY: </strong>
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH ({uri:'http://www.w3.org/ns/oa#classifying'}) &lt;-[:oa__motivatedBy]-(ANNO:oa__Annotation)-[:oa__hasTarget]-&gt; ()-[:oa__hasSource]-&gt;(PRIMARYSTUDY)
-MATCH (ANNO)-[:dcterms__creator]-&gt;(extractor)
-RETURN PRIMARYSTUDY.dcterms__title AS paper, COUNT(DISTINCT extractor ) AS numberOfExtractors</code>
+        <code class="cypher language-cypher">
+          MATCH (PAPER:foaf__Document)
+          OPTIONAL MATCH ({uri:'http://www.w3.org/ns/oa#classifying'}) <-[:oa__motivatedBy]-(ANNO:oa__Annotation)-[:oa__hasTarget]-> ()-[:oa__hasSource]->(PAPER), (ANNO)-[:dcterms__creator]->(extractor)
+          RETURN PAPER.dcterms__title AS paper, COUNT(DISTINCT extractor ) AS numberOfExtractors</code>
       </pre>
-
   </div>
 </div></div>
-    </div>
   </slide>
-
-
-
 
 
   <slide class="row-fluid">
     <div class="col-sm-12">
-      <h3>ANALYSIS: #ComentedAssessingAnnotations (M7):</h3>
+      <h3>ANALYSIS: #AssessingAnnotations (M7):</h3>
       <br/>
-      <div><div class="paragraph">
+      <div class="paragraph">
         <strong>TEXTUAL DESCRIPTION:</strong>
-        Count the number of codings per category code and the number of validated of these codings.
+        Count the number of validated codings per codebook (i.e. category & code).
 <br/>
         <strong>FORMAL DESCRIPTION:</strong>
-        For each  \(category in K \) we want tuples: <category, Codingscategory, Validationscategory> where  Codingscategory ={ c C |  b  B:b.code = c.code  b.category = category}; and Validationscategory ={ vV|  c  Codingscategory:c.codingId = v.codingId}
-
-<p>??CLick ?????</p>
-</div>
-<div class="paragraph">
-<p>QUERY: Assessing annotations with comments????????   //PER CATEGORY GROUP
-* INTERPRETATION:
-<strong> HIGH LEVEL: &#8230;&#8203;.
-</strong> LOW LEVEL: otherwise</p>
-</div>
-
-
-
-
+        For each  \(\lt category, code\gt \in B\) we want tuples: \( \lt category, code, NumValidations_{code} \gt \) where  \( NumValidations_{code} = |Validations_{code}|  \) and  \( Validations_{code} = \{ v \in V |  \exists Anno \in C: Anno.code = code \land Anno.codingId = v.codingId\} \)
+<br/>
+<strong>CYPHER QUERY: </strong>
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (ANNO1:oa__Annotation)-[oa__motivatedBy]-&gt;({uri: 'http://rdf.onekin.org/resource/ns/slr/codebookDevelopment'})
 MATCH (ANNO1:oa__Annotation)-[oa__hasTarget]-&gt;()-[oa__hasSelector]-&gt;(CODING:oa__TextQuoteSelector)
@@ -464,125 +460,98 @@ MATCH (ANNO3:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/
 MATCH (ANNO3:oa__Annotation)-[:oa__hasBody]-&gt;(ANNO1)
 RETURN code, TotalExtractions, COUNT(DISTINCT ANNO4) as TotalAssessed</code>
       </pre>
-
   </div>
 </div></div>
     </div>
   </slide>
 
 
-
-
-
-  <slide class="row-fluid">
+<slide class="row-fluid">
     <div class="col-sm-12">
       <h3>ANALYSIS: #AssesingAnnotationsAsAgree (M8):</h3>
       <br/>
-      <div><div class="paragraph">
-<p>QUERY: Number of agree assessments.</p>
-</div>
-
-
-
-
+  <div class="paragraph">
+        <strong>TEXTUAL DESCRIPTION:</strong>
+        Ratio of validated codings qualified as agree over the total of validated codings.
+        <br/>
+        <strong>FORMAL DESCRIPTION:</strong>
+        We want to know the ratio \(\frac{|AgreeValidations|}{|V|}\) where \(AgreeValidations = \{v \in V | v.assessment = agree\}\)
+        <br/>
+        <strong>CYPHER QUERY: </strong>
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (ano:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#assessing'})
 WITH COUNT(DISTINCT ano) as TotalAssessed
 MATCH ({uri:'http://www.w3.org/ns/oa#assessing'})&lt;-[:oa__motivatedBy]-(ano1:oa__Annotation)-[:oa__hasTarget]-&gt;(ano2:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#classifying'})
 MATCH (ano1:oa__Annotation)-[:oa__hasBody]-&gt;({rdf__value:'agree'})
-WITH COUNT(DISTINCT ano1) as agreeAnnotations, TotalAssessed
-RETURN agreeAnnotations, TotalAssessed, toFloat(agreeAnnotations)/TotalAssessed as Ratio</code>
+WITH COUNT(DISTINCT ano1) as agreeAnnotations, totalAssessed
+RETURN agreeAnnotations, TotalAssessed, toFloat(agreeAnnotations)/totalAssessed as Ratio</code>
       </pre>
-
   </div>
 </div></div>
-    </div>
   </slide>
-
-
-
 
 
   <slide class="row-fluid">
     <div class="col-sm-12">
       <h3>ANALYSIS: #AssesingAnnotationsAsDisagree (M9):</h3>
       <br/>
-      <div><div class="paragraph">
-<p>QUERY: Number of disagree assessments.</p>
-</div>
-
-
-
-
+    <div class="paragraph">
+        <strong>TEXTUAL DESCRIPTION:</strong>
+        Ratio of validated codings qualified as disagree over the total of validated codings.
+        <br/>
+        <strong>FORMAL DESCRIPTION:</strong>
+        We want to know the ratio \(\frac{|DisagreeValidations|}{|V|}\) where \(DisagreeValidations = \{v \in V | v.assessment = disagree\}\)
+        <br/>
+        <strong>CYPHER QUERY: </strong>
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (ano:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#assessing'})
 WITH COUNT(DISTINCT ano) as TotalAssessed
 MATCH ({uri:'http://www.w3.org/ns/oa#assessing'})&lt;-[:oa__motivatedBy]-(ano1:oa__Annotation)-[:oa__hasTarget]-&gt;(ano2:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#classifying'})
 MATCH (ano1:oa__Annotation)-[:oa__hasBody]-&gt;({rdf__value:'disagree'})
-WITH COUNT(DISTINCT ano1) as disagreeAnnotations, TotalAssessed
-RETURN disagreeAnnotations, TotalAssessed, toFloat(disagreeAnnotations)/TotalAssessed as Ratio</code>
+WITH COUNT(DISTINCT ano1) as disagreeAnnotations, totalAssessed
+RETURN disagreeAnnotations, totalAssessed, toFloat(disagreeAnnotations)/totalAssessed as Ratio</code>
       </pre>
-
   </div>
 </div></div>
     </div>
   </slide>
-
-
-
 
 
   <slide class="row-fluid">
     <div class="col-sm-12">
       <h3>ANALYSIS: #AssesingAnnotations (M10)</h3>
       <br/>
-      <div><div class="paragraph">
-<p>QUERY: Count the number of assessing annotations per code.</p>
+      <div class="paragraph">
+            <strong>TEXTUAL DESCRIPTION:</strong>
+            Ratio of assessed annotations per code.
+            <br/>
+            <strong>FORMAL DESCRIPTION:</strong>
+        For each  \(\lt category, code\gt \in B\) we want tuples: \( \lt code, NumCodings_{code}, NumValidated_{code}, \frac{NumCodings_{code}}{NumValidated_{code}} \gt \) where  \( NumCodings_{code} = |Codings_{code}|  \) and  \( Codings_{code} = \{ Anno \in C | Anno.code = code \} \) and  \( Validations_{code} = \{ v \in V |  \exists Anno \in C: Anno.code = code \land Anno.codingId = v.codingId\} \)
+            <br/>
+            <strong>CYPHER QUERY: </strong>
+<p>QUERY: </p>
 </div>
-
-
-
-
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH (a:oa__Annotation)-[oa__motivatedBy]-&gt;({uri: 'http://rdf.onekin.org/resource/ns/slr/codebookDevelopment'})
-MATCH (a:oa__Annotation)-[oa__hasTarget]-&gt;()-[oa__hasSelector]-&gt;(b:oa__TextQuoteSelector)
-WITH a, b.oa__exact as code
-MATCH (c:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#classifying'})
-MATCH (c:oa__Annotation)-[:oa__hasBody]-&gt;(a)
-WITH COUNT(DISTINCT c) as TotalExtractions, code, a
-MATCH (ano1:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#assessing'})
-MATCH (ano1:oa__Annotation)-[:oa__hasBody]-&gt;({rdf__value:'agree'})
-MATCH (ano1:oa__Annotation)-[:oa__hasTarget]-&gt;(ano2)
-MATCH (ano2:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#classifying'})
-MATCH (ano2:oa__Annotation)-[:oa__hasBody]-&gt;(a)
-WITH COUNT(DISTINCT ano1) as TotalAssessed, TotalExtractions, code
-RETURN code, TotalExtractions, TotalAssessed, toFloat(TotalAssessed)/TotalExtractions as Ratio</code>
+        <code class="cypher language-cypher">MATCH (c:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#classifying'})
+        MATCH (c:oa__Annotation)-[:oa__hasBody]->(a)-[:oa__hasBody]->(b)
+        WITH COUNT(DISTINCT c) as TotalExtractions, b.rdf__value as code, a
+        MATCH (ano1:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#assessing'})
+        MATCH (ano1:oa__Annotation)-[:oa__hasTarget]->(ano2)
+        MATCH (ano2:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#classifying'})
+        MATCH (ano2:oa__Annotation)-[:oa__hasBody]->(a)
+        WITH COUNT(DISTINCT ano1) as TotalAssessed, TotalExtractions, code
+        RETURN code, TotalExtractions, TotalAssessed, toFloat(TotalAssessed)/TotalExtractions as Ratio</code>
       </pre>
-
   </div>
-</div></div>
+</div>
     </div>
   </slide>
-
-
 
 
 
@@ -593,125 +562,19 @@ RETURN code, TotalExtractions, TotalAssessed, toFloat(TotalAssessed)/TotalExtrac
       <div><div class="paragraph">
 <p>QUERY:  Codings_per_day</p>
 </div>
-
-
-
-
 <div id="" class="listingblock">
-
   <div class="content">
-
-
-
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})&lt;-[:oa__motivatedBy]-(ano1:oa__Annotation)
-RETURN ano1.dcterms__created as date, COUNT(DISTINCT ano1) as numberOfCodingAnnotations
-ORDER BY date</code>
+        <code class="cypher language-cypher">MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})<-[:oa__motivatedBy]-(ano1:oa__Annotation)
+WITH apoc.date.parse (ano1.dcterms__created, "d", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") as d, COUNT(DISTINCT ano1) as numberOfCodingAnnotations
+RETURN apoc.date.format (d,"d", "yyyy-MM-dd") as day,  numberOfCodingAnnotations
+ORDER BY d</code>
       </pre>
-
   </div>
 </div></div>
     </div>
   </slide>
 
-
-
-
-
-  <slide class="row-fluid">
-    <div class="col-sm-12">
-      <h3>ANALYSIS: #PrimaryStudies (M16):</h3>
-      <br/>
-      <div><div class="paragraph">
-<p>QUERY: Number of primay studies</p>
-</div>
-
-
-
-
-<div id="" class="listingblock">
-
-  <div class="content">
-
-
-
-      <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})&lt;-[:oa__motivatedBy]-(:oa__Annotation)-[:oa__hasTarget]-&gt;()-[:oa__hasSource]-&gt;(PrimaryStudy)
-RETURN COUNT(DISTINCT PrimaryStudy) as numberOfPrimaryStudies</code>
-      </pre>
-
-  </div>
-</div></div>
-    </div>
-  </slide>
-
-
-
-
-
-  <slide class="row-fluid">
-    <div class="col-sm-12">
-      <h3>ANALYSIS: #CodingAnnotations (M17):</h3>
-      <br/>
-      <div><div class="paragraph">
-<p>QUERY: Number of coding annotations</p>
-</div>
-
-
-
-
-<div id="" class="listingblock">
-
-  <div class="content">
-
-
-
-      <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})&lt;-[:oa__motivatedBy]-(ano:oa__Annotation)
-RETURN COUNT(DISTINCT ano) as numberOfCodingAnnotations</code>
-      </pre>
-
-  </div>
-</div></div>
-    </div>
-  </slide>
-
-
-
-
-
-  <slide class="row-fluid">
-    <div class="col-sm-12">
-      <h3>ANALYSIS: max(#Coding_Papers_Category) (M14):</h3>
-      <br/>
-      <div><div class="paragraph">
-<p>QUERY: Number of coding annotations XXXXX</p>
-</div>
-
-
-
-
-<div id="" class="listingblock">
-
-  <div class="content">
-
-
-
-      <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
-        <code class="cypher language-cypher">MATCH (a:oa__Annotation)-[oa__motivatedBy]-&gt;({uri: 'http://rdf.onekin.org/resource/ns/slr/codebookDevelopment'})
-MATCH (a:oa__Annotation)-[oa__hasTarget]-&gt;()-[oa__hasSelector]-&gt;(b:oa__TextQuoteSelector)
-WITH a, b.oa__exact as code
-MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})&lt;-[:oa__motivatedBy]-(c:oa__Annotation)-[:oa__hasTarget]-&gt;()-[:oa__hasSource]-&gt;(PrimaryStudy)
-MATCH (c:oa__Annotation)-[:oa__hasBody]-&gt;(a)
-WITH  PrimaryStudy.uri as uri, code, COUNT(c) as numberOfAnnotations
-RETURN  code, uri, numberOfAnnotations
-ORDER BY code, numberOfAnnotations DESC</code>
-      </pre>
-
-  </div>
-</div></div>
-    </div>
-  </slide>
 
   </carousel>
 </article></body></html>
