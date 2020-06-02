@@ -375,9 +375,10 @@ MATCH (n:`UNIQUE IMPORT LABEL`) WITH n LIMIT 20000 REMOVE n:`UNIQUE IMPORT LABEL
 
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (n), (primaryStudy:foaf__Document), ()-[p]-()
+WITH COUNT(DISTINCT primaryStudy) as numberOfPapers, count(DISTINCT n) as NumberOfDBNodes,  count(DISTINCT p) as NumberOfDBRelations
 MATCH ({uri:'http://www.w3.org/ns/oa#classifying'})<-[:oa__motivatedBy]-(ano:oa__Annotation)-[:dcterms__creator]->(extractor)
 MATCH ({uri:'http://www.w3.org/ns/oa#assessing'})<-[:oa__motivatedBy]-(checks:oa__Annotation)-[:dcterms__creator]->(checker)
-RETURN COUNT(DISTINCT primaryStudy) as numberOfPapers, count(DISTINCT ano) as NumberOfAnnotations,  COUNT(DISTINCT extractor) as numberOfExtractors, count(DISTINCT checks) as NumberOfValidations,  COUNT(DISTINCT checker) as numberOfCheckers, count(DISTINCT n) as NumberOfDBNodes,  count(DISTINCT p) as NumberOfDBRelations</code>
+RETURN numberOfPapers, count(DISTINCT ano) as NumberOfAnnotations,  COUNT(DISTINCT extractor) as numberOfExtractors, count(DISTINCT checks) as NumberOfValidations,  COUNT(DISTINCT checker) as numberOfCheckers, NumberOfDBNodes,   NumberOfDBRelations</code>
       </pre>
 
   </div>
