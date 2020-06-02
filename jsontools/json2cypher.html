@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+	<title> (FormalSLR)-2->(CypherImporter) </title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Json2html -->
+    <script src="./js/json2html.js"></script>
+
+ </head>
+ <body>
+
+<h1>(FormalSLR)-2->(CypherImporter) </h1>
+<h3>Formal SLR json definition TO Cypher importer script for Open Annotation based Open SLRs. </h3>
+  </br>
+    <strong>DEFINITION:  SLR data set:</strong>
+    </br>
+      Let <strong>\( A= (P, R, D, K, E, B, C, V) \)</strong> be a SLR data set, where:
+      <ul>
+    <li> \(P\) is a set of papers, </li>
+    <li>\(R\) is a set of data reviewers (a.k.a extractors), </li>
+    <li>\(D\) is a set of (internal or external) checkers, </li>
+    <li>\(K\) is a set of categories, </li>
+    <li>\(E\) is a set of codes, </li>
+    <li>\(B\) is a set of codebook tuples, </li>
+    <li>\(C\) is a set of coding tuples, </li>
+    <li>\(V\) is a set of validation tuples.</li>
+    </ul>
+  </br>
+    <strong>  DEFINITION Codebook tuple:</strong>
+      </br>
+        A codebook tuple \(\lt category, code\gt  \in B \) links a \(code \in E\) to a \( category \in K\) . Hence , \(B  \subseteq (K \times E) \).
+
+      </br>  </br>
+    <strong>  DEFINITION Coding tuple:</strong>
+      </br>
+        A coding tuple \(\lt codingId, paper, reviewer, code, quote, timeStamp\gt  \in C  \) accounts for the act of a \( reviewer \in R\) classifying a given \(paper \in P\) along a certain \(code \in E\) at hand on the grounds of some paragraphs or quotes found on the paper.
+      </br>  </br>
+    <strong>  DEFINITION Validation tuple:</strong>
+      </br>
+      A validation tuple  \(\lt checker, codingId, assessment, comment\gt  \in V\) accounts for the act of a \( checker \in D\) assessing a coding tuple identified by \(codingId\).
+
+      </br>
+<br><br>
+Provide the SLR definition as a Json object in the following textarea (see the example below):
+<br/>
+<button type="button" onclick="createScript()" style="background-color:powderblue;">Create Cypher Script</button><br>
+<input type="checkbox" id="completedata" name="completedata" value="true"> <label for="completedata"> Complete radomly no provided annotation timestamps)</label><br>
+  <textarea id="data" name="data" rows="20" cols="100">
+  {"P": ["paper1"],
+  "R":["Alice"],
+  "D": ["David"],
+  "K":["ProgrammingLanguage"],
+  "E":["Java", "C", "MissingPL"],
+  "B":[{"category" : "ProgrammingLanguage", "code": "Java"} , {"category" : "ProgrammingLanguage", "code": "C"}, {"category" : "ProgrammingLanguage", "code": "MissingPL"}],
+  "C":[{"codingId": 1, "paper": "paper1", "reviewer": "Alice", "code": "Java", "quote": "developed in Java", "timestamp": "2222-02-22T22:22:22.222Z"}],
+  "V":[{"checker": "David", "codingId": 1, "assessment" : "agree", "comment" : "all ok"}]}
+    </textarea>
+
+<br>
+<!--
+<hr>
+  Here used input data:  <button type="button" id = "CopyData" onclick="CopyToClipboard('dataDiv')" style="background-color:powderblue;">Copy this SLR formal definition to clipboard</button>
+   <div id="dataDiv" name="dataDiv"  style="background-color:#e6fee6;"></div>
+ -->
+    <hr><br>
+    Here generated script:  <button type="button" id = "CopyScript" onclick="CopyToClipboard('scriptDiv')" style="background-color:powderblue;">Copy this Cypher script to clipboard</button><br>
+  <div id="scriptDiv" name="scriptDiv" style="background-color:#e6fee6;"></div>
+
+      <script type="text/javascript" src="./js/json2cypher.js"></script>
+<hr>
+
+
+ </body>
+</html>
