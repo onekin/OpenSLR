@@ -1,0 +1,175 @@
+body {
+  font-size: 12px;
+  font-family: Arial;
+}
+
+buried{
+  visibility : hidden;
+}
+
+h1{
+  width: 98%;
+}
+
+.description {display: true;
+    width: 99%;
+    height: auto;
+    overflow: scroll;       }
+
+.colorea{
+      background-color: #edf4fc;
+}
+
+#menu {
+    width: 100%;
+      background-color: white;
+}
+#contentbody {
+    width: 100%;
+}
+#prefooter {
+    height: 55px;
+      background-color: white;
+}
+#footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+      background-color: white;
+}
+
+slide {
+
+}
+
+#slides {
+    background-color: ivory;
+    border-style: solid ;
+    width: 99%;
+    min-height: 200px;
+}
+
+pre.code{
+  background-color: gainsboro;
+  width: 98%;
+   margin-left: 10px;
+  height: auto;
+  overflow: scroll;
+  border-style: dotted;
+}
+
+
+button {
+  background-color: #008CBA; /* Green */
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+}
+
+.button{
+  background-color: #008CBA;
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+}
+
+:disabled {
+  background-color: #ccc;
+  color: black;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 10px;
+}
+#guide{width: 50%;}
+
+#cypher {
+  width:98%;
+  height:7.5rem}
+
+  #host{width:20%}
+  #port{width:50px}
+  #user{size:20}
+  #password{size:20}
+
+  .icon {
+    width:50px;
+    height:20px;
+  }
+
+  small.rightly {
+    float: right;
+  }
+
+  table{
+    width: 99%;
+    height: auto;
+    overflow: scroll;
+    border-style: dotted;}
+
+  tbody{
+    background-color: gainsboro  ;
+     margin-left: 10px;
+    height: auto;}
+
+   thead{
+    background-color: mintcream;
+    height: auto;}
+
+  .linklike {
+     cursor:pointer;
+     color:blue;
+     text-decoration:underline;
+}
+.linklike:hover {
+     text-decoration:none;
+     text-shadow: 1px 1px 1px #555;
+}
+
+
+/* [NAVIGATION] */
+#tab-nav {
+  background: #333;
+}
+#tab-nav span.tabnav {
+  display: inline-block;
+  padding: 20px 10px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+#tab-nav span.active {
+  background: #a03b31;
+}
+
+/* [CONTENTS] */
+#tab-contents {
+  padding: 15px;
+}
+#tab-contents div.tabtxt {
+  display: none;
+}
+#tab-contents div.active {
+  display: block;
+}
+
+
+/*Vis*/
+#viz {
+    width: 75%;
+    height:700px;
+    border: 1px solid lightgray;
+    font: 22pt arial;
+margin: 10px;
+}
+label {
+  display: inline-block;
+  width: 10em;
+}
