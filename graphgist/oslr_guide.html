@@ -449,7 +449,7 @@ RETURN COUNT(DISTINCT extractor ) AS numberOfExtractors
 MATCH (ano1:oa__Annotation)-[:oa__hasTarget]->(ano2)
 MATCH (ano2:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#classifying'})
 MATCH (ano2:oa__Annotation)-[:oa__hasBody]->(a)-[:oa__hasBody]->(b)
-RETURN b.rdf__value as code, COUNT(DISTINCT ano1) as TotalAssessed</code>
+RETURN b.rdf__value as code, COUNT(DISTINCT ano1) as totalAssessed</code>
       </pre>
   </div>
 </div></div>
@@ -501,7 +501,7 @@ RETURN agreeAnnotations, totalAssessed, toFloat(agreeAnnotations)/totalAssessed 
   <div class="content">
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (ano:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#assessing'})
-WITH COUNT(DISTINCT ano) as TotalAssessed
+WITH COUNT(DISTINCT ano) as totalAssessed
 MATCH ({uri:'http://www.w3.org/ns/oa#assessing'})&lt;-[:oa__motivatedBy]-(ano1:oa__Annotation)-[:oa__hasTarget]-&gt;(ano2:oa__Annotation)-[:oa__motivatedBy]-&gt;({uri:'http://www.w3.org/ns/oa#classifying'})
 MATCH (ano1:oa__Annotation)-[:oa__hasBody]-&gt;({rdf__value:'disagree'})
 WITH COUNT(DISTINCT ano1) as disagreeAnnotations, totalAssessed
@@ -531,13 +531,13 @@ RETURN disagreeAnnotations, totalAssessed, toFloat(disagreeAnnotations)/totalAss
       <pre mode="cypher" class="highlight pre-scrollable code runnable standalone-example ng-binding" lang="">
         <code class="cypher language-cypher">MATCH (c:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#classifying'})
         MATCH (c:oa__Annotation)-[:oa__hasBody]->(a)-[:oa__hasBody]->(b)
-        WITH COUNT(DISTINCT c) as TotalExtractions, b.rdf__value as code, a
+        WITH COUNT(DISTINCT c) as totalExtractions, b.rdf__value as code, a
         MATCH (ano1:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#assessing'})
         MATCH (ano1:oa__Annotation)-[:oa__hasTarget]->(ano2)
         MATCH (ano2:oa__Annotation)-[:oa__motivatedBy]->({uri:'http://www.w3.org/ns/oa#classifying'})
         MATCH (ano2:oa__Annotation)-[:oa__hasBody]->(a)
-        WITH COUNT(DISTINCT ano1) as TotalAssessed, TotalExtractions, code
-        RETURN code, TotalExtractions, TotalAssessed, toFloat(TotalAssessed)/TotalExtractions as Ratio</code>
+        WITH COUNT(DISTINCT ano1) as totalAssessed, totalExtractions, code
+        RETURN code, totalExtractions, totalAssessed, toFloat(totalAssessed)/totalExtractions as Ratio</code>
       </pre>
   </div>
 </div>
@@ -567,6 +567,8 @@ ORDER BY d</code>
 </div></div>
     </div>
   </slide>
+
+
 
 
   </carousel>
