@@ -337,7 +337,7 @@ $( "#slides" ).load( url , function( response, status, xhr ) {
     }
 
   function connect() {
-      pub.cx = js2neo.open({
+      pub.cx = js2neo.open({secure:false,
           host: document.getElementById("host").value,
           port: parseInt(document.getElementById("port").value),
           user: document.getElementById("user").value,
